@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CSV to Table</title>
+    <style>
+      table{
+        margin: 0 auto;
+        border-collapse: collapse;
+        border: 1px solid #d4d4d4;
+      }
+      tr:nth-child(even){
+        background: #f1f1f1;
+      }
+      th, td{
+        padding: 10px 30px;
+      }
+      th{
+        border-bottom: 1px solid #d4d4d4;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+  </head>
+  <body>  
+    <script>
+      $(document).ready( function () {
+        $('#myTable').DataTable();
+      } );
+
+      function sortDataByDay(data) {
+        var sortedData = [];
+        var mons = [];
+        var tues = [];
+        var weds = [];
+        var thurs = [];
+        var fris = [];
+        console.log(data);
+        var allRows = data.split("\n");
+        console.log(allRows);
+        for (var i=0; i<allRows.length;i++) { 
+          var rowCell = allRows[i].split(",");
+          console.log(rowCell);
+          switch (rowCell[1].toLowerCase()) {
+            case "monday":
+              mons.push(rowCell);
+              break;
+            case "tuesday":
+              tues.push(rowCell);
+              break;
+            case "wednesday":
+              weds.push(rowCell);
+              break;
+            case "thursday":
+              thurs.push(rowCell);
+              break;
+            case "friday":
+              fris.push(rowCell);
+              break;
+          }
+        }
+        sortedData.push(mons);
+        sortedData.push(tues);
+        sortedData.push(weds);
+        sortedData.push(thurs);
+        sortedData.push(fris);
+        //console.log("sortedData: " +sortedData);
+        return sortedData;
+
+      }
+
+      function opsi(data){
+        var table = "<table id='myTable'>";
+        var allRows = sortDataByDay(data);
+        allRows = data.split("\n");
+        console.log("All rows: " + data);
+        var colHeader = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+        console.log("Col header: " + colHeader);
+        for (var day=0; day<colHeader.length;day++) { //add table headers to the table
+          if (day == 0) {
+            table += "<thead>";
+            table += "<tr>";
+          } 
+          table+="<th>";
+          table += colHeader[day];
+          table += "<th>";
+        }
+        table += "</tr>";
+        table += "</thead>";
+        table += "<tbody>";
+
+        var firstLine = true;
+        for (var singleRow=0; singleRow<allRows.length;singleRow++) {
+          var str = allRows[singleRow].trim().replace(/,/g, ""); //loop thru the rows and check if the row is empty
+          //console.log("str: " + str);
+          if (str == "") {
+            firstLine = false;
+            console.log("empty");
+          } else {
+            if (firstLine) {
+              console.log("1st Row: " + allRows[singleRow]); //dont print the first row
+              firstLine = false;
+            } else {
+              console.log("Row: " + allRows[singleRow]);
+              var rowCells = allRows[singleRow].split(",");
+              // for (var singleRowCell=0; singleRowCell<rowCells.length;singleRowCell++) {
+              //   console.log("Cell: " + rowCells[singleRowCell]);
+                table += "<tr><td>";
+                var whichDay = rowCells[1].toLowerCase();
+                var weekday;
+                console.log("Which Day: " + whichDay);
+                switch (whichDay) {
+                  case "monday":
+                    table += "<table><tr><td>";
+                    table += rowCells;
+                    table += "</td></tr></table>";
+                    break;
+                  case "tuesday":
+                    table += "<table><tr><td>";
+                    table += rowCells;
+                    table += "</td></tr></table>";
+                    break;
+                  case "wednesday":
+                    table += "<table><tr><td>";
+                    table += rowCells;
+                    table += "</td></tr></table>";
+                    break;
+                  case "thursday":
+                    table += "<table><tr><td>";
+                    table += rowCells;
+                    table += "</td></tr></table>";
+                    break;
+                  case "friday":
+                    table += "<table><tr><td>";
+                    table += rowCells;
+                    table += "</td></tr></table>";
+                    break;
+                }
+                table += "</td>";
+              // }
+            } 
+          }
+        }
+        table += "</tr>";
+        table += "</tbody>";
+        table += "</table>";
+        console.log(table);
+        $("body").append(table);
+      }
+
+      $.ajax({
+        url: "IntramuralSched.csv",
+        dataType: "text",
+      }).done(opsi);
+    </script>
+  </body>
+</html>
