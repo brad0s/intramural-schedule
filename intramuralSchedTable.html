@@ -1,160 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CSV to Table</title>
-    <style>
-      table{
-        margin: 0 auto;
-        border-collapse: collapse;
-        border: 1px solid #d4d4d4;
-      }
-      tr:nth-child(even){
-        background: #f1f1f1;
-      }
-      th, td{
-        padding: 10px 30px;
-      }
-      th{
-        border-bottom: 1px solid #d4d4d4;
-      }
-    </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
-  </head>
-  <body>  
-    <script>
-      $(document).ready( function () {
-        $('#myTable').DataTable();
-      } );
+   <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>CSV to Table</title>
+      <style>
+         table{
+         margin: 0 auto;
+         border-collapse: collapse;
+         border: 1px solid #d4d4d4;
+         }
+         /*tr:nth-child(even){
+         background: #f1f1f1;
+         }*/
+         th, td{
+         padding: 10px 30px;
+         }
+         th{
+         border-bottom: 1px solid #d4d4d4;
+         }
+         /****************************************/
+         #parentGameTable {
+          background-color: #000;
+         }
+         .table .table {
+          background-color: inherit !important;
+         }
+         .table thead th {
+          text-align: center;
+         }
+         .day-td {
+          padding: 1px !important;
+         }
+         .monday tbody tr td {
+          border: 2px solid #ff1717;
+         }
+         .tuesday tbody tr td {
+          border: 2px solid #389e24;
+         }
+        .wednesday tbody tr td {
+          border: 2px solid #feff6a;
+         }
+         .thursday tbody tr td {
+          border: 2px solid #ff17da;
+         }
+        .friday tbody tr td {
+          border: 2px solid #3a82ff;
+         }
+         #currentDay {
+          color: #76fc37;
+         }
 
-      function sortDataByDay(data) {
-        var sortedData = [];
-        var mons = [];
-        var tues = [];
-        var weds = [];
-        var thurs = [];
-        var fris = [];
-        console.log(data);
-        var allRows = data.split("\n");
-        console.log(allRows);
-        for (var i=0; i<allRows.length;i++) { 
-          var rowCell = allRows[i].split(",");
-          console.log(rowCell);
-          switch (rowCell[1].toLowerCase()) {
-            case "monday":
-              mons.push(rowCell);
-              break;
-            case "tuesday":
-              tues.push(rowCell);
-              break;
-            case "wednesday":
-              weds.push(rowCell);
-              break;
-            case "thursday":
-              thurs.push(rowCell);
-              break;
-            case "friday":
-              fris.push(rowCell);
-              break;
-          }
-        }
-        sortedData.push(mons);
-        sortedData.push(tues);
-        sortedData.push(weds);
-        sortedData.push(thurs);
-        sortedData.push(fris);
-        //console.log("sortedData: " +sortedData);
-        return sortedData;
+      </style>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+      <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+     
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+   </head>
+   <body>
+      <script>
+         //TODO sort by entire date and group same sports together
+         //TODO create var game objects
+         function Game(gameId, time, day, date, home, away, location, sport) {
+          this.gameId = gameId;
+          this.time = time;
+          this.day = day;
+          this.date = date;
+          this.home = home;
+          this.away = away;
+          this.location = location;
+          this.sport = sport;
+          this.printGame = function () {return this.time+" " +this.day+" "+this.date+" "+this.home+" "+this.away+" "+this.location+" "+this.sport;};
+         }
+         var arrayOfGameObjects = [];
+         var sortedData = [];
+         var currentDate = new Date();
+         console.log(currentDate);
+         function sortDataByDay(data) {
+           var mons = [];
+           var tues = [];
+           var weds = [];
+           var thurs = [];
+           var fris = [];
 
-      }
+           //console.log(data);
+           var allRows = data.split("\n"); //get each row
+           //console.log(allRows);
+           for (var i=0; i<allRows.length;i++) { 
+             var rowCell = allRows[i].split(","); //get each cell of each row
+             //console.log(rowCell);
+             if (i != 0) {
+              // var game = new Game(i,rowCell[0],rowCell[1],rowCell[2],rowCell[3],rowCell[4],rowCell[5],rowCell[6]);
+              // arrayOfGameObjects.push(game);
+             }
+             
+             switch (rowCell[1].toLowerCase()) { //put the games into arrays based on day of the week
+               case "monday":
+                 //mons.push(rowCell); 
+                 mons.push(new Game(i,rowCell[0],rowCell[1],rowCell[2],rowCell[3],rowCell[4],rowCell[5],rowCell[6]));
+                 break;
+               case "tuesday":
+                 //tues.push(rowCell);
+                 tues.push(new Game(i,rowCell[0],rowCell[1],rowCell[2],rowCell[3],rowCell[4],rowCell[5],rowCell[6]));
+                 break;
+               case "wednesday":
+                 //weds.push(rowCell);
+                 weds.push(new Game(i,rowCell[0],rowCell[1],rowCell[2],rowCell[3],rowCell[4],rowCell[5],rowCell[6]));
+                 break;
+               case "thursday":
+                 //thurs.push(rowCell);
+                 thurs.push(new Game(i,rowCell[0],rowCell[1],rowCell[2],rowCell[3],rowCell[4],rowCell[5],rowCell[6]));
+                 break;
+               case "friday":
+                 //fris.push(rowCell);
+                 fris.push(new Game(i,rowCell[0],rowCell[1],rowCell[2],rowCell[3],rowCell[4],rowCell[5],rowCell[6]));
+                 break;
+             }
+           }
+           //TODO after data is sorted by day, sort the game objects by sport
+           function mergeSort(array) {
 
-      function opsi(data){
-        var table = "<table id='myTable'>";
-        var allRows = sortDataByDay(data);
-        allRows = data.split("\n");
-        console.log("All rows: " + data);
-        var colHeader = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-        console.log("Col header: " + colHeader);
-        for (var day=0; day<colHeader.length;day++) { //add table headers to the table
-          if (day == 0) {
-            table += "<thead>";
-            table += "<tr>";
-          } 
-          table+="<th>";
-          table += colHeader[day];
-          table += "<th>";
-        }
-        table += "</tr>";
-        table += "</thead>";
-        table += "<tbody>";
+           }
+           // for (var i=0;i<mons.length;i++) {
+           //  var sports = [];
+           //  var sport = mons[0].sport;
+           //  sports.push(sport);
+           //  sport = mons[i].sport;
+           //  if (sport != mons[i+1].sport && !sports.includes(sport)) {
 
-        var firstLine = true;
-        for (var singleRow=0; singleRow<allRows.length;singleRow++) {
-          var str = allRows[singleRow].trim().replace(/,/g, ""); //loop thru the rows and check if the row is empty
-          //console.log("str: " + str);
-          if (str == "") {
-            firstLine = false;
-            console.log("empty");
+           //  }
+           // }
+           sortedData.push(mons);
+           sortedData.push(tues);
+           sortedData.push(weds);
+           sortedData.push(thurs);
+           sortedData.push(fris);
+           console.log(sortedData);
+           //console.log(arrayOfGameObjects);
+           createScheduleTable(sortedData)
+           //createGameTable(arrayOfGameObjects);
+         }
+
+         function createScheduleTable(sortedData){
+           var table = "<table id='' class='table table-bordered table-dark'>";
+           var allRows = sortedData;
+           //console.log(sortedData);
+           //var colHeader = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+           var colHeader = getDateTimeForTable();
+           //console.log("Col header: " + colHeader);
+           for (var day=0; day<colHeader.length;day++) { //add table headers to the table
+             if (day == 0) {
+               table += "<thead>";
+               table += "<tr>";
+             } 
+             table+="<th>";
+             //table += colHeader[day];
+             if (colHeader[day].getDay() != 0 || colHeader[day].getDay() != 6) {
+              table += setColHeaderDateFormat(colHeader[day]);
+             }
+             table += "</th>";
+           }
+           table += "</tr>";
+           table += "</thead>";
+           table += "<tbody>";
+           table += "<tr>"
+           console.log("SortedData len: " + sortedData.length);
+           for (var i=0; i<sortedData.length; i++) {
+             console.log("Array["+i+"]" + sortedData[i]);
+             var firstEventDay = true; //boolean to keep track of whether its the first row to go into the new column
+             for (var j=0; j<sortedData[i].length; j++) {
+               var whichDay = sortedData[i][j].day.toLowerCase();
+               console.log("whichDay: " + whichDay);
+               switch (whichDay) {
+                 case "monday":
+                   if (firstEventDay) { //check if its the first event to go into the column
+                     table += createTdTableTag(whichDay);
+                     //table += "<td><table>"
+                     firstEventDay = false;
+                   }
+                   table += displayGameMeta(sortedData, i, j);
+                   break;
+                 case "tuesday":
+                 if (firstEventDay) {
+                     table += createTdTableTag(whichDay);
+                     firstEventDay = false;
+                   }
+                   table += displayGameMeta(sortedData, i, j);
+                   break;
+                 case "wednesday":
+                 if (firstEventDay) {
+                     table += createTdTableTag(whichDay);
+                     firstEventDay = false;
+                   }
+                   table += displayGameMeta(sortedData, i, j);
+                   break;
+                 case "thursday":
+                 if (firstEventDay) {
+                     table += createTdTableTag(whichDay);
+                     firstEventDay = false;
+                   }
+                   table += displayGameMeta(sortedData, i, j);
+                   break;
+                 case "friday":
+                 if (firstEventDay) {
+                     table += createTdTableTag(whichDay);
+                     firstEventDay = false;
+                   }
+                   table += displayGameMeta(sortedData, i, j);
+                   break;
+               }
+               if (j == sortedData[i].length-1) { //check if at end of 2nd D array to end table and td tag
+                 table += "</table></td>";
+               }
+               if (i == sortedData.length-1) { //check if at end of 1st D array to end tr tag
+                 table += "</tr>";
+               }
+             }
+           }
+           table += "</tr>";
+           table += "</tbody>";
+           table += "</table>";
+           console.log(table);
+           $("body").append(table);
+         }
+         
+         $.ajax({
+           url: "IntramuralSched.csv",
+           dataType: "text",
+         }).done(sortDataByDay);
+
+         function displayGameMeta(sortedData, i,j) {
+          var gameMetaTd = "";
+          gameMetaTd += "<tr><td>";
+          gameMetaTd += "<div>"+sortedData[i][j].time+"</div>"; 
+          gameMetaTd += "<div>"+sortedData[i][j].date+"</div>";
+          gameMetaTd += "<div>"+sortedData[i][j].home+" vs. "+sortedData[i][j].away+"</div>";
+          gameMetaTd += "<div>"+sortedData[i][j].sport+"</div>";
+          gameMetaTd += "<div>"+sortedData[i][j].location+"</div>";
+          gameMetaTd += "</td></tr>";
+          return gameMetaTd;
+         }
+         function createTdTableTag(day) {
+          var tdTable = "";
+          tdTable = "<td class='day-td'><table class='table table-hover table-striped table-dark "+day+"'>";
+          return tdTable;
+         }
+
+        function getDateTimeForTable(){
+          var today = currentDate.getDay();
+          var firstDayOfWeek;
+          if (today != 0) {
+            firstDayOfWeek = today--;
           } else {
-            if (firstLine) {
-              console.log("1st Row: " + allRows[singleRow]); //dont print the first row
-              firstLine = false;
-            } else {
-              console.log("Row: " + allRows[singleRow]);
-              var rowCells = allRows[singleRow].split(",");
-              // for (var singleRowCell=0; singleRowCell<rowCells.length;singleRowCell++) {
-              //   console.log("Cell: " + rowCells[singleRowCell]);
-                table += "<tr><td>";
-                var whichDay = rowCells[1].toLowerCase();
-                var weekday;
-                console.log("Which Day: " + whichDay);
-                switch (whichDay) {
-                  case "monday":
-                    table += "<table><tr><td>";
-                    table += rowCells;
-                    table += "</td></tr></table>";
-                    break;
-                  case "tuesday":
-                    table += "<table><tr><td>";
-                    table += rowCells;
-                    table += "</td></tr></table>";
-                    break;
-                  case "wednesday":
-                    table += "<table><tr><td>";
-                    table += rowCells;
-                    table += "</td></tr></table>";
-                    break;
-                  case "thursday":
-                    table += "<table><tr><td>";
-                    table += rowCells;
-                    table += "</td></tr></table>";
-                    break;
-                  case "friday":
-                    table += "<table><tr><td>";
-                    table += rowCells;
-                    table += "</td></tr></table>";
-                    break;
-                }
-                table += "</td>";
-              // }
-            } 
+            firstDayOfWeek = today;
           }
+          var firstDayOfWeekDate = new Date();
+          firstDayOfWeekDate.setDate(currentDate.getDate() - today);
+          var currentDaysOfWeek = []
+          if (today == 0) {
+            for (var i=1; i<8; i++) {
+              var date = new Date();
+              date.setDate(firstDayOfWeekDate.getDate()+i);
+              console.log(date);
+              currentDaysOfWeek.push(date);
+            }
+          }
+          return currentDaysOfWeek;
         }
-        table += "</tr>";
-        table += "</tbody>";
-        table += "</table>";
-        console.log(table);
-        $("body").append(table);
-      }
 
-      $.ajax({
-        url: "IntramuralSched.csv",
-        dataType: "text",
-      }).done(opsi);
-    </script>
-  </body>
+        function setColHeaderDateFormat(colDay) {
+          var monthNumber = colDay.getMonth();
+          var dayOfMonth = colDay.getDate();
+          var year = colDay.getFullYear();
+          var dayNumber = colDay.getDay();
+          var days = new Array(7);
+          days[0] = "Sunday";
+          days[1] = "Monday";
+          days[2] = "Tuesday";
+          days[3] = "Wednesday";
+          days[4] = "Thursday";
+          days[5] = "Friday";
+          days[6] = "Saturday";
+          var day = days[dayNumber];
+          var months = new Array(12);
+          months[0] = "January";
+          months[1] = "February";
+          months[2] = "March";
+          months[3] = "April";
+          months[4] = "May";
+          months[5] = "June";
+          months[6] = "July";
+          months[7] = "August";
+          months[8] = "September";
+          months[9] = "October";
+          months[10] = "November";
+          months[11] = "December";
+          var month = months[monthNumber];
+          var colDayArray = [];
+          colDayArray.push(day);
+          colDayArray.push(month);
+          colDayArray.push(dayOfMonth);
+          colDayArray.push(year);
+          console.log(colDayArray);
+          if (colDay.getTime() == currentDate.getTime())
+          {
+            var format = "<div id='currentDay'>"+colDayArray[0]+"</div><br/>"+colDayArray[1]+" "+colDayArray[2]+" "+colDayArray[3];
+          } else {
+            var format = colDayArray[0]+"<br/>"+colDayArray[1]+" "+colDayArray[2]+" "+colDayArray[3];
+          }
+          return format;
+        }
+        
+      </script>
+   </body>
 </html>
