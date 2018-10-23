@@ -21,8 +21,11 @@
          border-bottom: 1px solid #d4d4d4;
          }
          /****************************************/
-         #parentGameTable {
+/*         #parentGameTable {
           background-color: #000;
+         }*/
+         #parentGameTable thead tr th {
+          /*background-color: #90132b;*/
          }
          .table .table {
           background-color: inherit !important;
@@ -33,8 +36,12 @@
          .day-td {
           padding: 1px !important;
          }
-         .monday tbody tr td {
+         .game-table tbody tr td {
+          padding: 0 15px;
+         }
+        /* .monday tbody tr td {
           border: 2px solid #ff1717;
+          border-radius: 5px;
          }
          .tuesday tbody tr td {
           border: 2px solid #389e24;
@@ -47,6 +54,29 @@
          }
         .friday tbody tr td {
           border: 2px solid #3a82ff;
+         }*/
+         .game {
+         }
+         .game-meta-header {
+          background-color: #90132b;
+          height: 35px;
+          padding: 5px;
+          border-radius: 13px;
+         }
+         .time {
+          border-right: 1px solid #fff;
+         }
+         .home, .away {
+          font-weight: 200px;
+          font-size: 14px;
+
+         }
+         .location {
+         /* border-left: 1px solid #fff;
+          border-top: 1px solid #fff;*/
+          border-radius: 13px;
+          background-color: #90132b;
+          margin: 3px 2px;
          }
          #currentDay {
           color: #76fc37;
@@ -146,7 +176,7 @@
          }
 
          function createScheduleTable(sortedData){
-           var table = "<table id='' class='table table-bordered table-dark'>";
+           var table = "<table id='parentGameTable' class='table table-bordered table-dark'>";
            var allRows = sortedData;
            //console.log(sortedData);
            //var colHeader = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -236,17 +266,23 @@
          function displayGameMeta(sortedData, i,j) {
           var gameMetaTd = "";
           gameMetaTd += "<tr><td>";
-          gameMetaTd += "<div>"+sortedData[i][j].time+"</div>"; 
-          gameMetaTd += "<div>"+sortedData[i][j].date+"</div>";
-          gameMetaTd += "<div>"+sortedData[i][j].home+" vs. "+sortedData[i][j].away+"</div>";
-          gameMetaTd += "<div>"+sortedData[i][j].sport+"</div>";
-          gameMetaTd += "<div>"+sortedData[i][j].location+"</div>";
-          gameMetaTd += "</td></tr>";
+          gameMetaTd += "<div class='game'>";
+          gameMetaTd += "<div class='row game-meta-header'>";
+          gameMetaTd += "<div class='col-sm-4 time'>"+sortedData[i][j].time+"</div>"; 
+          gameMetaTd += "<div class='col-sm-8 text-center'>"+sortedData[i][j].sport+"</div>";
+          gameMetaTd += "</div>";
+          //gameMetaTd += "<div>"+sortedData[i][j].date+"</div>";
+          if (sortedData[i][j].home != "" && sortedData[i][j].away != "") {
+            gameMetaTd += "<div class='row'><div class='col home'>"+sortedData[i][j].home+"</div><div class='col'> vs. </div><div class='col away'>"+sortedData[i][j].away+"</div></div>";
+          }
+          gameMetaTd += "<div class='row'><div class='col-md-5 offset-md-7 location text-center'>"+sortedData[i][j].location+"</div></div>";
+          gameMetaTd += "</div></td></tr>";
           return gameMetaTd;
          }
+
          function createTdTableTag(day) {
           var tdTable = "";
-          tdTable = "<td class='day-td'><table class='table table-hover table-striped table-dark "+day+"'>";
+          tdTable = "<td class='day-td'><table class='table table-hover table-striped table-dark "+day+" game-table'>";
           return tdTable;
          }
 
