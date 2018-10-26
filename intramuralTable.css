@@ -1,0 +1,116 @@
+table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  border: 1px solid #d4d4d4;
+}
+
+/*tr:nth-child(even){
+       background: #f1f1f1;
+       }*/
+
+th,
+td {
+  padding: 10px 30px;
+}
+
+th {
+  border-bottom: 1px solid #d4d4d4;
+}
+
+/****************************************/
+/*         #parentGameTable {
+        background-color: #000;
+       }*/
+
+#parentGameTable thead tr th {
+  /*background-color: #90132b;*/
+}
+
+.table .table {
+  background-color: inherit !important;
+}
+
+.table thead th {
+  text-align: center;
+}
+
+.day-td {
+  padding: 1px !important;
+}
+
+.game-table tbody tr td {
+  padding: 0 15px;
+}
+
+/* .monday tbody tr td {
+        border: 2px solid #ff1717;
+        border-radius: 5px;
+       }
+       .tuesday tbody tr td {
+        border: 2px solid #389e24;
+       }
+      .wednesday tbody tr td {
+        border: 2px solid #feff6a;
+       }
+       .thursday tbody tr td {
+        border: 2px solid #ff17da;
+       }
+      .friday tbody tr td {
+        border: 2px solid #3a82ff;
+       }*/
+
+.game {}
+
+.cancelled {}
+
+.game-meta-header {
+  background-color: #90132b;
+  /*height: 35px;*/
+  padding: 5px;
+  border-radius: 13px;
+  margin: 3px 0px;
+}
+
+.time {
+  border-right: 1px solid #fff;
+}
+
+.sport {
+  /*border: 1px solid #fff;
+        border-radius: 13px;
+        padding: 4px;*/
+}
+
+.teams {
+  font-size: 17px;
+}
+
+.home,
+.away,
+.vs {
+  text-align: center;
+}
+
+.location {
+  /* border-left: 1px solid #fff;
+        border-top: 1px solid #fff;*/
+  border-radius: 13px;
+  background-color: #90132b;
+  margin: 3px 2px;
+}
+
+#currentDay {
+  color: #76fc37;
+}
+
+@media (max-width: 992px) {
+  .time {
+    border: none;
+    text-align: center;
+  }
+  .home,
+  .away,
+  .vs {
+    text-align: center;
+  }
+}
