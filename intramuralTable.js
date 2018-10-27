@@ -45,6 +45,23 @@ function sortDataByDay(data) { //sorts data from csv into arrays by day of the w
         break;
     }
   }
+  console.log("mergeTime");
+  console.log(mergeSortTime(tues));
+
+  var sportsOnDay = []; //get the different sports that are being played on the specific day
+  for(var i=0; i<tues.length; i++) {
+    if (i < tues.length-1) {
+      if (tues[i].sport != tues[i+1].sport && !sportsOnDay.includes(tues[i].sport)) {
+      sportsOnDay.push(tues[i].sport);
+      }
+    } else {
+      if (!sportsOnDay.includes(tues[i].sport)) {
+        sportsOnDay.push(tues[i].sport);
+      }
+    }
+  }
+  console.log(sportsOnDay);
+
   sortedData.push(mons);
   sortedData.push(tues);
   sortedData.push(weds);
@@ -244,12 +261,59 @@ function getMonthOfTheYear(monthNumber) { //takes in a month number and returns 
 }
 
 //TODO after data is sorted by day, sort the game objects by sport
-function mergeSort(array) {}
-// for (var i=0;i<mons.length;i++) {
-//  var sports = [];
-//  var sport = mons[0].sport;
-//  sports.push(sport);
-//  sport = mons[i].sport;
-//  if (sport != mons[i+1].sport && !sports.includes(sport)) {
-//  }
-// }
+function mergeSortTime(array) { //split array into halves and mergeTime them exclusively
+  if (array.length === 1) {
+    return array; //return once we hit an array with a single item
+  }
+  const middle = Math.floor(array.length/2); //middle item of array rounded down
+  const left = array.slice(0, middle); //left side of array
+  const right = array.slice(middle); //right side of array
+
+  return mergeTime(mergeSortTime(left), mergeSortTime(right));
+}
+
+function mergeTime(left, right) { //compare the arrays item by item and return the concatenated result
+  let result = [];
+  let indexLeft = 0;
+  let indexRight = 0;
+
+  while (indexLeft < left.length && indexRight < right.length) {
+    if (left[indexLeft].time < right[indexRight].time) {
+      result.push(left[indexLeft]);
+      indexLeft++;
+    } else {
+      result.push(right[indexRight]);
+      indexRight++;
+    }
+  }
+  return result.concat(left.slice(indexLeft).concat(right.slice(indexRight)));
+}
+
+//call merge sort to sort the array based on the sport in the current day
+function mergeSortSport(array) { //split array into halves and mergeTime them exclusively
+  if (array.length === 1) {
+    return array; //return once we hit an array with a single item
+  }
+  const middle = Math.floor(array.length/2); //middle item of array rounded down
+  const left = array.slice(0, middle); //left side of array
+  const right = array.slice(middle); //right side of array
+
+  return mergeSport(mergeSortSport(left), mergeSortSport(right));
+}
+
+function mergeSport(left, right) { //compare the arrays item by item and return the concatenated result
+  let result = [];
+  let indexLeft = 0;
+  let indexRight = 0;
+
+  while (indexLeft < left.length && indexRight < right.length) {
+    if (left[indexLeft].sport < right[indexRight].sport) {
+      result.push(left[indexLeft]);
+      indexLeft++;
+    } else {
+      result.push(right[indexRight]);
+      indexRight++;
+    }
+  }
+  return result.concat(left.slice(indexLeft).concat(right.slice(indexRight)));
+}
