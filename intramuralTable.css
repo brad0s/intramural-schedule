@@ -1,7 +1,7 @@
 table {
-  margin: 0 auto;
+ /* margin: 0 auto;
   border-collapse: collapse;
-  border: 1px solid #d4d4d4;
+  border: 1px solid #d4d4d4;*/
 }
 
 /*tr:nth-child(even){
@@ -61,7 +61,24 @@ th {
 
 .game {}
 
-.cancelled {}
+.cancelled {
+  opacity: 0.3;
+}
+
+#cancelled {
+  margin:auto;
+  top: 35%;
+  width: 100%;
+  height: 25%;
+  background-color: white;
+  color: red;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 13px;
+  z-index: 1;
+  padding: 0px 8px;
+}
+
 
 .game-meta-header {
   background-color: #90132b;

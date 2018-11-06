@@ -1,6 +1,6 @@
 //TODO sort by entire date and group same sports together
 //TODO create var game objects
-function Game(gameId, time, day, date, home, away, location, sport, cancelled) {
+function Game(gameId, time, day, date, home, away, location, sport, cancelled, oneDayTournament, endTime) { //creates an object called game that corresponds to a row in the csv
   this.gameId = gameId;
   this.time = time;
   this.day = day;
@@ -10,6 +10,8 @@ function Game(gameId, time, day, date, home, away, location, sport, cancelled) {
   this.location = location;
   this.sport = sport;
   this.cancelled = cancelled;
+  this.oneDayTournament = oneDayTournament;
+  this.endTime = endTime;
   this.printGame = function () {
     return this.time + " " + this.day + " " + this.date + " " + this.home + " " + this.away + " " + this.location + " " + this.sport + " " + this.cancelled;
   };
@@ -29,25 +31,30 @@ function sortDataByDay(data) { //sorts data from csv into arrays by day of the w
     var rowCell = allRows[i].split(",", -1); //get each cell of each row
     switch (rowCell[1].toLowerCase()) { //put the games into arrays based on day of the week
       case "monday":
-        mons.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7]));
+        mons.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7], rowCell[8], rowCell[9]));
         break;
       case "tuesday":
-        tues.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7]));
+        tues.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7], rowCell[8], rowCell[9]));
         break;
       case "wednesday":
-        weds.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7]));
+        weds.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7], rowCell[8], rowCell[9]));
         break;
       case "thursday":
-        thurs.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7]));
+        thurs.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7], rowCell[8], rowCell[9]));
         break;
       case "friday":
-        fris.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7]));
+        fris.push(new Game(i, rowCell[0], rowCell[1], rowCell[2], rowCell[3], rowCell[4], rowCell[5], rowCell[6], rowCell[7], rowCell[8], rowCell[9]));
         break;
     }
   }
-  console.log("mergeTime");
-  console.log(mergeSortTime(tues));
-
+  //take day split by sport. Then sort by time and put back together by dat
+  mons = sortGamesOnDayBySportAndTime(mons);
+  tues = sortGamesOnDayBySportAndTime(tues);
+  weds = sortGamesOnDayBySportAndTime(weds);
+  thurs = sortGamesOnDayBySportAndTime(thurs);
+  fris = sortGamesOnDayBySportAndTime(fris);
+ 
+  console.log(tues);
   var sportsOnDay = []; //get the different sports that are being played on the specific day
   for(var i=0; i<tues.length; i++) {
     if (i < tues.length-1) {
@@ -156,9 +163,10 @@ function displayGameMeta(sortedData, i, j) { //creates the html for each game ob
   var gameMetaTd = "";
   gameMetaTd += "<tr><td>";
 
+  //console.log("Cancelled Row: "+ sortedData[i][j].cancelled); //apply appropiate css class if cancelled
   if (sortedData[i][j].cancelled == "yes") {
     console.log("Cancelled: " + sortedData[i][j].cancelled);
-    gameMetaTd += "<div class='game'><span class='fas fa-ban'></span>";
+    gameMetaTd += "<div id='cancelled'>Cancelled</div><div class='game cancelled'>";
   } else {
     gameMetaTd += "<div class='game'>";
   }
@@ -183,21 +191,26 @@ function createTdTableTag(day) { //creates html for the table that hold a group 
 function getDateTimeForTable() { //checks current day and gets the days in the current week
   //TODO how does it know when to run to get first day of the week. When today = 0?
   var currentDate = new Date();
-  //console.log(currentDate);
+  console.log(currentDate);
   var today = currentDate.getDay();
+  console.log("Today: ", today);
   var firstDayOfWeek = 0;
   if (today != 0) {
     firstDayOfWeek = today - today;
   } else {
     firstDayOfWeek = today;
   }
+  //TODO broke today. Maybe because of a new month. Gets the currentdate correct but when it incremments by one
+  //CurrrentDat = oct 28 and next date was nov 29 incremented day and month?
   var firstDayOfWeekDate = new Date();
   firstDayOfWeekDate.setDate(currentDate.getDate() - today);
+  console.log("firstDayOfWeekDate", firstDayOfWeekDate);
   var currentDaysOfWeek = []
   for (var i = 1; i < 6; i++) {
     var date = new Date();
+    console.log(firstDayOfWeekDate.getDate() + i);
     date.setDate(firstDayOfWeekDate.getDate() + i);
-    //console.log(date);
+    console.log(date);
     if (date.getDay() != 0 || date.getDay() != 6) {
       currentDaysOfWeek.push(date);
     }
@@ -260,7 +273,6 @@ function getMonthOfTheYear(monthNumber) { //takes in a month number and returns 
   return month;
 }
 
-//TODO after data is sorted by day, sort the game objects by sport
 function mergeSortTime(array) { //split array into halves and mergeTime them exclusively
   if (array.length === 1) {
     return array; //return once we hit an array with a single item
@@ -290,7 +302,7 @@ function mergeTime(left, right) { //compare the arrays item by item and return t
 }
 
 //call merge sort to sort the array based on the sport in the current day
-function mergeSortSport(array) { //split array into halves and mergeTime them exclusively
+/*function mergeSortSport(array) { //split array into halves and mergeTime them exclusively
   if (array.length === 1) {
     return array; //return once we hit an array with a single item
   }
@@ -316,4 +328,25 @@ function mergeSport(left, right) { //compare the arrays item by item and return 
     }
   }
   return result.concat(left.slice(indexLeft).concat(right.slice(indexRight)));
+}*/
+
+function sortBySport(arr) { //sorts sport alphabetically 
+	arr.sort(function(a,b) {
+  	var sportA = a.sport.toLowerCase();
+  	var sportB = b.sport.toLowerCase();
+  	if (sportA < sportB) {
+  		return -1;
+  	}
+  	if (sportA > sportB) {
+  		return 1;
+  	}
+  	return 0;
+  });
+	return arr;
+}
+
+function sortGamesOnDayBySportAndTime(arr) { //calls functions to sort data by time and then by sport
+	arr = mergeSortTime(arr);
+ 	arr = sortBySport(arr);
+ 	return arr;
 }
