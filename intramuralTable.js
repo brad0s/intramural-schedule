@@ -1,5 +1,3 @@
-//TODO sort by entire date and group same sports together
-//TODO create var game objects
 function Game(gameId, time, day, date, home, away, location, sport, cancelled, oneDayTournament, endTime) { //creates an object called game that corresponds to a row in the csv
   this.gameId = gameId;
   this.time = time;
@@ -108,7 +106,7 @@ function createScheduleTable(sortedData) { //creates the table
             table += createTdTableTag(whichDay);
             firstEventDay = false;
           }
-          table += displayGameMeta(sortedData, i, j);
+          table += displayGameMeta(sortedData, i, j); //add game object from array to the table for its corresponding day
           break;
         case "tuesday":
           if (firstEventDay) {
@@ -142,12 +140,8 @@ function createScheduleTable(sortedData) { //creates the table
       if (j == sortedData[i].length - 1) { //check if at end of 2nd D array to end table and td tag
         table += "</table></td>";
       }
-      // if (i == sortedData.length-1) { //check if at end of 1st D array to end tr tag
-      //   table += "</tr>";
-      // }
     }
   }
-  //table += "</tr>";
   table += "</tbody>";
   table += "</table>";
   console.log(table);
@@ -162,9 +156,7 @@ $.ajax({
 function displayGameMeta(sortedData, i, j) { //creates the html for each game object to be displayed in the table
   var gameMetaTd = "";
   gameMetaTd += "<tr><td>";
-
-  //console.log("Cancelled Row: "+ sortedData[i][j].cancelled); //apply appropiate css class if cancelled
-  if (sortedData[i][j].cancelled == "yes") {
+  if (sortedData[i][j].cancelled != "") { //check if game is cancelled
     console.log("Cancelled: " + sortedData[i][j].cancelled);
     gameMetaTd += "<div id='cancelled'>Cancelled</div><div class='game cancelled'>";
   } else {
@@ -174,23 +166,28 @@ function displayGameMeta(sortedData, i, j) { //creates the html for each game ob
   gameMetaTd += "<div class='col-lg-4 col-md-12 time'>" + sortedData[i][j].time + "</div>";
   gameMetaTd += "<div class='col-lg-8 col-md-12 text-center sport'>" + sortedData[i][j].sport + "</div>";
   gameMetaTd += "</div>";
-  if (sortedData[i][j].home != "" && sortedData[i][j].away != "") {
-    gameMetaTd += "<div class='row teams'><div class='col-sm-12 home'>" + sortedData[i][j].home + "</div><div class='col-sm-12 vs'> vs. </div><div class='col-sm-12 away'>" + sortedData[i][j].away + "</div></div>";
+  gameMetaTd += "<div class='row'><div class='col-lg-12 col-md-12 location text-center'>" + sortedData[i][j].location + "</div></div>";
+  if (sortedData[i][j].oneDayTournament != "") { //check if game is a one day tournament
+    console.log(sortedData[i][j].oneDayTournament);
+    //TODO format date so display looks better
+    gameMetaTd += "<div class='row'><div class='col-lg-6 col-md-12'>"+sortedData[i][j].time+"-"+sortedData[i][j].endTime+"</div><div class='col-lg-6 col-md-12'>"+ formatDateForOneDayTourney(sortedData[i][j].date)+"</div></div>";
+  } else {
+     gameMetaTd += "<div class='row teams'><div class='col-sm-12 away'>" + sortedData[i][j].away + "</div><div class='col-sm-12 vs'> vs. </div><div class='col-sm-12 home'>" + sortedData[i][j].home + "</div></div>";
   }
-  gameMetaTd += "<div class='row'><div class='col-lg-5 offset-lg-7 col-md-12 location text-center'>" + sortedData[i][j].location + "</div></div>";
   gameMetaTd += "</div></td></tr>";
   return gameMetaTd;
 }
 
 function createTdTableTag(day) { //creates html for the table that hold a group of game objects for the entire day. might have to break up and have tables that hold each game object by sport in the day
   var tdTable = "";
-  tdTable = "<td class='day-td'><table class='table table-hover table-striped table-dark " + day + " game-table'>";
+  tdTable = "<td class='day-td'><table class='table table-striped table-dark " + day + " game-table'>";
   return tdTable;
 }
 
 function getDateTimeForTable() { //checks current day and gets the days in the current week
   //TODO how does it know when to run to get first day of the week. When today = 0?
-  var currentDate = new Date();
+  //month is zero based
+  var currentDate = new Date(2018, 9, 28);
   console.log(currentDate);
   var today = currentDate.getDay();
   console.log("Today: ", today);
@@ -203,14 +200,13 @@ function getDateTimeForTable() { //checks current day and gets the days in the c
   //TODO broke today. Maybe because of a new month. Gets the currentdate correct but when it incremments by one
   //CurrrentDat = oct 28 and next date was nov 29 incremented day and month?
   var firstDayOfWeekDate = new Date();
-  firstDayOfWeekDate.setDate(currentDate.getDate() - today);
+  firstDayOfWeekDate.setDate(currentDate.getDay() - today);
   console.log("firstDayOfWeekDate", firstDayOfWeekDate);
-  var currentDaysOfWeek = []
+  var currentDaysOfWeek = [];
   for (var i = 1; i < 6; i++) {
     var date = new Date();
-    console.log(firstDayOfWeekDate.getDate() + i);
-    date.setDate(firstDayOfWeekDate.getDate() + i);
-    console.log(date);
+    date.setDate(firstDayOfWeekDate.getDay() + i);
+    console.log(firstDayOfWeekDate.getDay() + " i= "+i + " " + date);
     if (date.getDay() != 0 || date.getDay() != 6) {
       currentDaysOfWeek.push(date);
     }
@@ -283,7 +279,6 @@ function mergeSortTime(array) { //split array into halves and mergeTime them exc
 
   return mergeTime(mergeSortTime(left), mergeSortTime(right));
 }
-
 function mergeTime(left, right) { //compare the arrays item by item and return the concatenated result
   let result = [];
   let indexLeft = 0;
@@ -300,35 +295,6 @@ function mergeTime(left, right) { //compare the arrays item by item and return t
   }
   return result.concat(left.slice(indexLeft).concat(right.slice(indexRight)));
 }
-
-//call merge sort to sort the array based on the sport in the current day
-/*function mergeSortSport(array) { //split array into halves and mergeTime them exclusively
-  if (array.length === 1) {
-    return array; //return once we hit an array with a single item
-  }
-  const middle = Math.floor(array.length/2); //middle item of array rounded down
-  const left = array.slice(0, middle); //left side of array
-  const right = array.slice(middle); //right side of array
-
-  return mergeSport(mergeSortSport(left), mergeSortSport(right));
-}
-
-function mergeSport(left, right) { //compare the arrays item by item and return the concatenated result
-  let result = [];
-  let indexLeft = 0;
-  let indexRight = 0;
-
-  while (indexLeft < left.length && indexRight < right.length) {
-    if (left[indexLeft].sport < right[indexRight].sport) {
-      result.push(left[indexLeft]);
-      indexLeft++;
-    } else {
-      result.push(right[indexRight]);
-      indexRight++;
-    }
-  }
-  return result.concat(left.slice(indexLeft).concat(right.slice(indexRight)));
-}*/
 
 function sortBySport(arr) { //sorts sport alphabetically 
 	arr.sort(function(a,b) {
@@ -349,4 +315,11 @@ function sortGamesOnDayBySportAndTime(arr) { //calls functions to sort data by t
 	arr = mergeSortTime(arr);
  	arr = sortBySport(arr);
  	return arr;
+}
+
+function formatDateForOneDayTourney(date) {
+  var dates = date.split("/");
+  console.log(dates);
+  var monthName = getMonthOfTheYear(dates[0]);
+  return monthName +" "+ dates[1];
 }
