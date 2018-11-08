@@ -10,9 +10,6 @@ function Game(gameId, time, day, date, home, away, location, sport, cancelled, o
   this.cancelled = cancelled;
   this.oneDayTournament = oneDayTournament;
   this.endTime = endTime;
-  this.printGame = function () {
-    return this.time + " " + this.day + " " + this.date + " " + this.home + " " + this.away + " " + this.location + " " + this.sport + " " + this.cancelled;
-  };
 }
 var arrayOfGameObjects = [];
 var sortedData = [];
@@ -24,7 +21,7 @@ function sortDataByDay(data) { //sorts data from csv into arrays by day of the w
   var thurs = [];
   var fris = [];
   var allRows = data.split("\n"); //get each row
-  console.log(allRows);
+  //console.log(allRows);
   for (var i = 0; i < allRows.length; i++) {
     var rowCell = allRows[i].split(",", -1); //get each cell of each row
     switch (rowCell[1].toLowerCase()) { //put the games into arrays based on day of the week
@@ -51,8 +48,7 @@ function sortDataByDay(data) { //sorts data from csv into arrays by day of the w
   weds = sortGamesOnDayBySportAndTime(weds);
   thurs = sortGamesOnDayBySportAndTime(thurs);
   fris = sortGamesOnDayBySportAndTime(fris);
- 
-  console.log(tues);
+
   var sportsOnDay = []; //get the different sports that are being played on the specific day
   for(var i=0; i<tues.length; i++) {
     if (i < tues.length-1) {
@@ -65,8 +61,6 @@ function sortDataByDay(data) { //sorts data from csv into arrays by day of the w
       }
     }
   }
-  console.log(sportsOnDay);
-
   sortedData.push(mons);
   sortedData.push(tues);
   sortedData.push(weds);
@@ -93,13 +87,13 @@ function createScheduleTable(sortedData) { //creates the table
   table += "</thead>";
   table += "<tbody>";
   table += "<tr>"
-  console.log("SortedData len: " + sortedData.length);
+  //console.log("SortedData len: " + sortedData.length);
   for (var i = 0; i < sortedData.length; i++) {
     //console.log("Array["+i+"]" + sortedData[i]);
     var firstEventDay = true; //boolean to keep track of whether its the first row to go into the new column
     for (var j = 0; j < sortedData[i].length; j++) {
       var whichDay = sortedData[i][j].day.toLowerCase();
-      console.log("whichDay: " + whichDay);
+      //console.log("whichDay: " + whichDay);
       switch (whichDay) {
         case "monday":
           if (firstEventDay) { //check if its the first event to go into the column
@@ -144,7 +138,7 @@ function createScheduleTable(sortedData) { //creates the table
   }
   table += "</tbody>";
   table += "</table>";
-  console.log(table);
+  //console.log(table);
   $("body").append(table);
 }
 
@@ -168,7 +162,6 @@ function displayGameMeta(sortedData, i, j) { //creates the html for each game ob
   gameMetaTd += "</div>";
   gameMetaTd += "<div class='row'><div class='col-lg-12 col-md-12 location text-center'>" + sortedData[i][j].location + "</div></div>";
   if (sortedData[i][j].oneDayTournament != "") { //check if game is a one day tournament
-    console.log(sortedData[i][j].oneDayTournament);
     //TODO format date so display looks better
     gameMetaTd += "<div class='row'><div class='col-lg-6 col-md-12'>"+sortedData[i][j].time+"-"+sortedData[i][j].endTime+"</div><div class='col-lg-6 col-md-12'>"+ formatDateForOneDayTourney(sortedData[i][j].date)+"</div></div>";
   } else {
@@ -185,33 +178,16 @@ function createTdTableTag(day) { //creates html for the table that hold a group 
 }
 
 function getDateTimeForTable() { //checks current day and gets the days in the current week
-  //TODO how does it know when to run to get first day of the week. When today = 0?
-  //month is zero based
-  var currentDate = new Date(2018, 9, 28);
-  console.log(currentDate);
-  var today = currentDate.getDay();
-  console.log("Today: ", today);
-  var firstDayOfWeek = 0;
-  if (today != 0) {
-    firstDayOfWeek = today - today;
-  } else {
-    firstDayOfWeek = today;
+  var d = new Date(); //get current date
+  first = new Date();
+  first.setDate((d.getDate()-d.getDay())); //first day of week is day of month minus day of the week of current date
+  var week = [];
+  for (i=1; i<6; i++) {
+    var dTmp = new Date(first);
+    dTmp.setDate(first.getDate() + i); //from first day of week get the next 5 days of the week
+    week.push(dTmp);
   }
-  //TODO broke today. Maybe because of a new month. Gets the currentdate correct but when it incremments by one
-  //CurrrentDat = oct 28 and next date was nov 29 incremented day and month?
-  var firstDayOfWeekDate = new Date();
-  firstDayOfWeekDate.setDate(currentDate.getDay() - today);
-  console.log("firstDayOfWeekDate", firstDayOfWeekDate);
-  var currentDaysOfWeek = [];
-  for (var i = 1; i < 6; i++) {
-    var date = new Date();
-    date.setDate(firstDayOfWeekDate.getDay() + i);
-    console.log(firstDayOfWeekDate.getDay() + " i= "+i + " " + date);
-    if (date.getDay() != 0 || date.getDay() != 6) {
-      currentDaysOfWeek.push(date);
-    }
-  }
-  return currentDaysOfWeek;
+  return week;
 }
 
 function setColHeaderDateFormat(colDay) { //creates the html to display the dates from getDateTimeForTable(). Format is (Day of Week, Month, Day of Month, Year)
@@ -221,19 +197,14 @@ function setColHeaderDateFormat(colDay) { //creates the html to display the date
   var dayNumber = colDay.getDay();
   var day = getDayOfTheWeek(dayNumber);
   var month = getMonthOfTheYear(monthNumber);
-  var colDayArray = [];
-  colDayArray.push(day);
-  colDayArray.push(month);
-  colDayArray.push(dayOfMonth);
-  colDayArray.push(year);
   var colDayDate = new Date(year, monthNumber, dayOfMonth);
   var cd = new Date();
   var currentDate = new Date(cd.getFullYear(), cd.getMonth(), cd.getDate())
   if (colDayDate.getTime() === currentDate.getTime()) //add currentDay class to colHeader that is the currentDay to add styling
   {
-    var format = "<div id='currentDay'>" + colDayArray[0] + "<br>" + colDayArray[1] + " " + colDayArray[2] + " " + colDayArray[3] + "</div>";
+    var format = "<div id='currentDay'>" + day + "<br>" + month + " " + dayOfMonth + " " + year + "</div>";
   } else {
-    var format = colDayArray[0] + "<br>" + colDayArray[1] + " " + colDayArray[2] + " " + colDayArray[3];
+    var format = day + "<br>" + month + " " + dayOfMonth + " " + year;
   }
   return format;
 }
@@ -276,14 +247,12 @@ function mergeSortTime(array) { //split array into halves and mergeTime them exc
   const middle = Math.floor(array.length/2); //middle item of array rounded down
   const left = array.slice(0, middle); //left side of array
   const right = array.slice(middle); //right side of array
-
   return mergeTime(mergeSortTime(left), mergeSortTime(right));
 }
 function mergeTime(left, right) { //compare the arrays item by item and return the concatenated result
   let result = [];
   let indexLeft = 0;
   let indexRight = 0;
-
   while (indexLeft < left.length && indexRight < right.length) {
     if (left[indexLeft].time < right[indexRight].time) {
       result.push(left[indexLeft]);

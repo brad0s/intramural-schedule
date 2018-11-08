@@ -114,6 +114,10 @@ th {
   border-radius: 13px;
   background-color: #90132b;
   margin: 3px 2px;
+  margin-top: 0px;
+  margin-bottom:3px;
+  margin-left:2px;
+  margin-right: 0px;
 }
 
 #currentDay {
